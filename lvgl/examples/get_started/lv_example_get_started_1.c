@@ -9,11 +9,11 @@
 
 #if LV_BUILD_EXAMPLES && LV_USE_BTN
 
+
 static const char * btnm_map[] = {"_", " ", LV_SYMBOL_OK, LV_SYMBOL_CLOSE, LV_SYMBOL_BACKSPACE, LV_SYMBOL_KEYBOARD, LV_SYMBOL_EJECT, "1?&", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j",\
                                   "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
 char  password[35];
 
-lv_obj_t * btns;
 lv_obj_t * pwd_ta;
 
 //char index;
@@ -27,9 +27,9 @@ LV_IMG_DECLARE(usb);
 LV_IMG_DECLARE(arrow);
 LV_IMG_DECLARE(empty);
 
+lv_obj_t * main_screen;
 lv_obj_t * screen;
-lv_obj_t * previous_screen;
-lv_disp_t * disp ;
+
 
 
 static void btn_event_cb(lv_event_t * e)
@@ -53,11 +53,11 @@ static void btn_output_event_cb(lv_event_t * e)
     if(code == LV_EVENT_CLICKED) {
 
          //previous_screen = lv_disp_get_scr_prev ( NULL );
-         //lv_disp_load_scr (previous_screen);
-         //lv_disp_get_scr_act(previous_screen);
-         //lv_scr_load(previous_screen);
+         lv_disp_load_scr (main_screen);
+         lv_disp_get_scr_act(main_screen);
+         //lv_scr_load(main_screen);
          //lv_scr_act();
-         //lv_obj_del(screen);
+         lv_obj_del(screen);
 
     }
 }
@@ -96,10 +96,7 @@ static void imgbtn_user_event_cb(lv_event_t * e)
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * btn = lv_event_get_target(e);
     if(code == LV_EVENT_CLICKED) {
-
         user_choice();
-
-
     }
 }
 
@@ -198,40 +195,40 @@ static void scroll_event_cb(lv_event_t * e)
 
 void lv_example_scroll_6(void)
 {
-    lv_obj_t * cont = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(cont, 300, 220);
-    lv_obj_center(cont);
-    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW);
+    main_screen = lv_obj_create(lv_scr_act());
+    lv_obj_set_size(main_screen, 300, 220);
+    lv_obj_center(main_screen);
+    lv_obj_set_flex_flow(main_screen, LV_FLEX_FLOW_ROW);
 
     lv_obj_t * info_label = lv_label_create(lv_scr_act());
     lv_label_set_text(info_label, " ");
-    lv_obj_set_pos(info_label, (lv_coord_t)130, (lv_coord_t)200);
+    lv_obj_set_pos(info_label, 130, 200);
 
-    lv_obj_add_event_cb(cont, scroll_event_cb, LV_EVENT_SCROLL, info_label);
+    lv_obj_add_event_cb(main_screen, scroll_event_cb, LV_EVENT_SCROLL, info_label);
 
-    lv_obj_set_style_clip_corner(cont, true, 0);
-    lv_obj_set_scroll_dir(cont, LV_DIR_HOR);
-    lv_obj_set_scroll_snap_y(cont, LV_SCROLL_SNAP_CENTER);
-    lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_clip_corner(main_screen, true, 0);
+    lv_obj_set_scroll_dir(main_screen, LV_DIR_HOR);
+    lv_obj_set_scroll_snap_y(main_screen, LV_SCROLL_SNAP_CENTER);
+    lv_obj_set_scrollbar_mode(main_screen, LV_SCROLLBAR_MODE_OFF);
 
     uint32_t i;
     uint32_t size_menu = sizeof(icon_names)/sizeof(icon_names[0]);
 
     for(i = 0; i < size_menu; i++) {
-        show_menu_field(cont, i);
+        show_menu_field(main_screen, i);
     }
 
     /*Update the buttons position manually for first*/
-    lv_event_send(cont, LV_EVENT_SCROLL, NULL);
+    lv_event_send(main_screen, LV_EVENT_SCROLL, NULL);
 
     /*Be sure the fist button is in the middle*/
-    lv_obj_scroll_to_view(lv_obj_get_child(cont, 2), LV_ANIM_OFF);
+    lv_obj_scroll_to_view(lv_obj_get_child(main_screen, 2), LV_ANIM_OFF);
 }
 
 void show_menu_field(lv_obj_t * obj, uint32_t i)
 {
     /*Now create the actual image*/
-    lv_obj_t * img = lv_imgbtn_create(obj);
+   /* lv_obj_t * img = lv_imgbtn_create(obj);
     lv_imgbtn_set_src (img, LV_IMGBTN_STATE_RELEASED, NULL, &icon_names[i], NULL);
 
     switch(i)
@@ -247,9 +244,43 @@ void show_menu_field(lv_obj_t * obj, uint32_t i)
 
     lv_img_set_zoom(img, 240);
     lv_obj_align(img, LV_ALIGN_LEFT_MID, 0, 0);
-    lv_img_set_pivot(img, 0, 0);    /*Rotate around the top left corner*/
+    lv_img_set_pivot(img, 0, 0);
 
     lv_obj_set_width(img, lv_pct(38));
+    */
+    static lv_style_t style_btn;
+    lv_style_init(&style_btn);
+    lv_style_set_radius(&style_btn, 110);
+    lv_style_set_bg_opa(&style_btn, LV_OPA_COVER);
+    lv_style_set_bg_color(&style_btn, lv_palette_lighten(LV_PALETTE_GREY, 3));
+    lv_style_set_bg_grad_color(&style_btn, lv_palette_main(LV_PALETTE_GREY));
+    lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
+
+    lv_style_set_border_color(&style_btn, lv_color_black());
+    lv_style_set_border_opa(&style_btn, LV_OPA_20);
+    lv_style_set_border_width(&style_btn, 2);
+
+    lv_style_set_text_color(&style_btn, lv_color_black());
+
+    lv_obj_t * home_screen_buttons = lv_btn_create(obj);     /*Add a button the current screen*/
+    lv_obj_add_style(home_screen_buttons, &style_btn, 0);
+
+    lv_obj_t * img = lv_img_create(home_screen_buttons);
+    lv_img_set_src(img, &icon_names[i]);
+    lv_obj_center(img);
+
+    switch(i)
+    {
+        case 0: {lv_obj_add_event_cb(home_screen_buttons, imgbtn_menu_event_cb, LV_EVENT_ALL, NULL);   break;}
+        case 1: {lv_obj_add_event_cb(home_screen_buttons, imgbtn_user_event_cb, LV_EVENT_ALL, NULL);   break;}
+        case 2: {lv_obj_add_event_cb(home_screen_buttons, imgbtn_cloud_event_cb, LV_EVENT_ALL, NULL);   break;}
+        case 3: {lv_obj_add_event_cb(home_screen_buttons, imgbtn_print_event_cb, LV_EVENT_ALL, NULL);   break;}
+        case 4: {lv_obj_add_event_cb(home_screen_buttons, imgbtn_usb_event_cb, LV_EVENT_ALL, NULL);   break;}
+        case 5: {break;}
+        default: {break;}
+    }
+
+    lv_obj_set_width(home_screen_buttons, lv_pct(38));
 }
 
 static void btn_menu_password_event_cb(lv_event_t * e)
@@ -268,15 +299,32 @@ void user_choice(void)
     lv_scr_load(screen);
     lv_scr_act();//created a screen
 
+    //-------------------------------------------Style  Button----------------------------------------------------
+    static lv_style_t style_btn;
+    lv_style_init(&style_btn);
+    lv_style_set_radius(&style_btn, 30);
+    lv_style_set_bg_opa(&style_btn, LV_OPA_COVER);
+    lv_style_set_bg_color(&style_btn, lv_palette_lighten(LV_PALETTE_GREY, 3));
+    lv_style_set_bg_grad_color(&style_btn, lv_palette_main(LV_PALETTE_GREY));
+    lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
+
+    lv_style_set_border_color(&style_btn, lv_color_black());
+    lv_style_set_border_opa(&style_btn, LV_OPA_20);
+    lv_style_set_border_width(&style_btn, 2);
+
+    lv_style_set_text_color(&style_btn, lv_color_black());
+
     //-------------------------------------------Button  exit----------------------------------------------------
     lv_obj_t * btn_exit = lv_btn_create(lv_scr_act());     /*Add a button the current screen*/
     lv_obj_set_pos(btn_exit, 125, 40);                            /*Set its position*/
     lv_obj_set_size(btn_exit, 70, 30);                          /*Set its size*/
     lv_obj_add_event_cb(btn_exit, btn_output_event_cb, LV_EVENT_ALL, NULL);           /*Assign a callback to the button*/
+    lv_obj_add_style(btn_exit, &style_btn, 0);
 
     lv_obj_t * obj = lv_img_create(btn_exit);
     lv_img_set_src(obj, &arrow);
     lv_obj_center(obj);
+
 
     //-------------------------------------------label  Sign In----------------------------------------------------
     lv_obj_t * label_text_user = lv_label_create(screen);          /*Add a label to the button*/
@@ -288,6 +336,7 @@ void user_choice(void)
     lv_obj_set_pos(btn_admin, 125, 140);                            /*Set its position*/
     lv_obj_set_size(btn_admin, 70, 30);                          /*Set its size*/
     lv_obj_add_event_cb(btn_admin, btn_menu_password_event_cb, LV_EVENT_ALL, NULL);           /*Assign a callback to the button*/
+    lv_obj_add_style(btn_admin, &style_btn, 0);
 
     lv_obj_t * label_admin = lv_label_create(btn_admin);          /*Add a label to the button*/
     lv_label_set_text(label_admin, "Admin");                     /*Set the labels text*/
@@ -298,6 +347,7 @@ void user_choice(void)
     lv_obj_set_pos(btn_user, 125, 190);                            /*Set its position*/
     lv_obj_set_size(btn_user, 70, 30);                          /*Set its size*/
     lv_obj_add_event_cb(btn_user, btn_menu_password_event_cb, LV_EVENT_ALL, NULL);           /*Assign a callback to the button*/
+    lv_obj_add_style(btn_user, &style_btn, 0);
 
     lv_obj_t * label_user = lv_label_create(btn_user);          /*Add a label to the button*/
     lv_label_set_text(label_user, "User");                     /*Set the labels text*/
@@ -488,7 +538,7 @@ void menu_password_entry(void)
 
         lv_style_set_text_color(&style_btn, lv_color_black());
 
-        btns = lv_btn_create(cont);
+        lv_obj_t *btns = lv_btn_create(cont);
         lv_obj_set_size(btns, 50, 50);
         lv_obj_add_style(btns, &style_btn, 0);
 
